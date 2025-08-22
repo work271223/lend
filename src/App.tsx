@@ -227,18 +227,6 @@ function Bundle({bundle, onAccess}:{bundle:any; onAccess:(id:string)=>void}){
             </div>
           </div>
         </div>
-        <div className="lg:col-span-5 space-y-6">
-          <div className="rounded-2xl overflow-hidden ring-1 ring-white/10">
-            <div className="aspect-video bg-slate-800 grid place-items-center">
-              <div className="text-center p-6">
-                <Play className="h-10 w-10 mx-auto mb-3 text-cyan-400" />
-                <div className="font-semibold">Student case: +$184 in 5 minutes</div>
-                <div className="text-xs text-slate-400">(replace with your video/testimonial)</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </section>
   );
 }
