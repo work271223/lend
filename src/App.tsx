@@ -1,26 +1,82 @@
-import React, { useEffect, useState, useRef } from "react";
-import { Check, Star, Clock, Shield, ChevronRight, Play, BookOpen, Sparkles, Gift, Users, GraduationCap, HelpCircle, Rocket, Settings, Save, Link as LinkIcon, Upload, Download } from "lucide-react";
 
-// Landing with persist fix: config.json loads only once if localStorage is empty
+import React, { useEffect, useState, useRef } from "react";
+import { Check, Star, Clock, Shield, ChevronRight, Play, BookOpen, Sparkles, Gift, Users, GraduationCap, HelpCircle, Rocket, Settings, Save, Link as LinkIcon, Upload, Download, Image as ImageIcon, Film } from "lucide-react";
+
 const TELEGRAM_REVIEWS_URL = "https://t.me/+ClNCXSObpic0ZDli";
-const defaults:any = {
-  brand:{ title:"Pro Binary — Academy", telegram:"@your_id", email:"info@yourdomain.com" },
-  hero:{ badge:"Access via Pocket Option deposit", title:"Three trading courses — effectively free", subtitle:"Unlock access after deposit: $100 / $200 / $300 or the full bundle with a $500 deposit. Video lessons, checklists, mini‑quizzes, and support.", ctaPrimary:"How to get access", ctaSecondary:"Course contents", image:"" },
-  features:[{icon:"shield",text:"Structured program: beginner to pro"},{icon:"clock",text:"Format: video + breakdowns + checklists"},{icon:"graduation",text:"Mini‑exams and certificate"},{icon:"users",text:"Support and trade reviews in chat"}],
-  courses:[
-    {id:"basic100",color:"from-sky-500 to-cyan-400",title:"BASIC • Technical analysis from scratch",deposit:100,audienceTitle:"Who it's for",audience:["Absolute beginners","Trend logic: up/down/range","Drawing trendlines and levels"],outcomesTitle:"Outcomes",outcomes:["Spot reversals and continuations","Read candles on M1 with confidence","Assemble a simple price‑action system"],modulesTitle:"Modules",modules:[{name:"Trends & Lines",bullets:["Types of trends and price logic","Trendlines: drawing and invalidation","Entry signal on trendline break"]},{name:"Support / Resistance",bullets:["How to build levels and judge strength","Confirmations: touches & timeframe","Entry algorithm: approach → reaction → entry"]},{name:"Chart Patterns",bullets:["Head & Shoulders / Inverted H&S","Double Top/Bottom, Wedge, Triangle","Entry rules & targets (pattern height)"]}],button:"Unlock — deposit"},
-    {id:"indicators200",color:"from-violet-500 to-fuchsia-500",title:"PRO • Indicators & precise entries",deposit:200,audienceTitle:"Who it's for",audience:["You know basics","You want rule‑based signals","Less subjectivity"],outcomesTitle:"Outcomes",outcomes:["Build indicator stacks","Filter noise & false signals","Increase winrate with confirmations"],modulesTitle:"Modules",modules:[{name:"Moving Average (MA)",bullets:["Why MA is core","MA + Patterns: filtering","Practice: find 3 patterns & 3 wins"]},{name:"Williams %R + Accelerator",bullets:["-80/-20 zones","Signal diversification","Trend/counter‑trend scenarios"]},{name:"CCI + Momentum",bullets:["Cycles & levels","Momentum 100 rule","Early reversal combo"]}],button:"Unlock — deposit"},
-    {id:"master300",color:"from-emerald-500 to-teal-500",title:"MASTER • System trading & risk management",deposit:300,audienceTitle:"Who it's for",audience:["Adv. beginners / intermediate","Ready for daily plan & journal","Goal: consistency & scaling"],outcomesTitle:"Outcomes",outcomes:["Build a trading plan & checklist","Risk profile & limits","Templates & journal to automate"],modulesTitle:"Modules",modules:[{name:"Entry System",bullets:["Trend / counter‑trend / range","Timing & duration for M1","Signal: conditions → confirm → entry"]},{name:"Risk & Money",bullets:["Fixed risk per trade & daily cap","Anti‑martingale growth","Drawdown recovery plan"]},{name:"Psychology",bullets:["Avoid overtrading","Rules for breaks","Trader's journal template"]}],button:"Unlock — deposit"}
-  ],
-  programsIntro:"Each module = video, notes, checklist, and a short quiz. The next block unlocks after passing the quiz.",
-  bundle:{title:"Best value — access to all courses",text:"Unlock all 3 courses after a $500 deposit on Pocket Option. No extra payments for education.",button:"Unlock all — deposit",deposit:500,includes:"Includes: Basic ($100) • Indicators ($200) • Master ($300)"},
-  howTo:{title:"How to get access for free",steps:["Sign up / log in to Pocket Option.","Top up your deposit — $100 / $200 / $300 or $500 for the bundle.","Send your account ID / receipt to Telegram support — we'll activate access."],note:"Important: we do not accept payments for courses; the deposit stays in your Pocket Option account.",pocketLink:"#",proofLink:"#"},
-  reviewsLink:{title:"Real reviews on Telegram",subtitle:"Open our reviews channel to see live feedback and results.",button:"Open reviews channel",url:TELEGRAM_REVIEWS_URL},
-  faq:[{q:"Are courses paid?",a:"No. Courses are effectively free: access unlocks after your Pocket Option deposit for the selected level."},{q:"Where does the deposit go?",a:"Only to your Pocket Option account. We do not take money for training."},{q:"How to confirm the deposit?",a:"Send your account ID / receipt in Telegram — we'll activate access."},{q:"Lifetime access?",a:"Yes. Lifetime access. Updates included."},{q:"Where to start?",a:"Start with Basic ($100), then Indicators ($200) and Master ($300) — or go bundle with a $500 deposit."}],
-  cta:{title:"Ready to start? Unlock via deposit",text:"Top up your Pocket Option deposit and send your ID/receipt — we'll activate access. Questions? Message us on Telegram.",chosenLabel:"You selected:",btnPocket:"Go to Pocket Option",btnProof:"Send receipt/ID in Telegram",disclaimer:"We do not accept payments for training. The deposit & risks are on the Pocket Option side."},
-  footer:{about:"Trading education for Pocket Option: theory, practice, discipline.",docs:["Public Offer","Refund Policy","Privacy Policy"]}
-};
 const KEY = "pb_cfg_v3_en";
+
+const defaults:any = {
+  brand: { title: "Pro Binary — Academy", telegram: "@your_id", email: "info@yourdomain.com" },
+  hero: { badge: "Access via Pocket Option deposit", title: "Three trading courses — effectively free", subtitle: "Unlock access after deposit: $100 / $200 / $300 or the full bundle with a $500 deposit. Video lessons, checklists, mini‑quizzes, and support.", ctaPrimary: "How to get access", ctaSecondary: "Course contents", image: "" },
+  features: [
+    { icon: "shield", text: "Structured program: beginner to pro" },
+    { icon: "clock", text: "Format: video + breakdowns + checklists" },
+    { icon: "graduation", text: "Mini‑exams and certificate" },
+    { icon: "users", text: "Support and trade reviews in chat" },
+  ],
+  courses: [
+    { id: "basic100", color: "from-sky-500 to-cyan-400", title: "BASIC • Technical analysis from scratch", deposit: 100,
+      audienceTitle: "Who it's for", audience: ["Absolute beginners","Trend logic: up/down/range","Drawing trendlines and levels"],
+      outcomesTitle: "Outcomes", outcomes: ["Spot reversals and continuations","Read candles on M1 with confidence","Assemble a simple price‑action system"],
+      modulesTitle: "Modules",
+      modules: [
+        { name: "Trends & Lines", bullets: ["Types of trends and price logic","Trendlines: drawing and invalidation","Entry signal on trendline break"]},
+        { name: "Support / Resistance", bullets: ["How to build levels and judge strength","Confirmations: touches & timeframe","Entry algorithm: approach → reaction → entry"]},
+        { name: "Chart Patterns", bullets: ["Head & Shoulders / Inverted H&S","Double Top/Bottom, Wedge, Triangle","Entry rules & targets (pattern height)"]},
+      ],
+      button: "Unlock — deposit"
+    },
+    { id: "indicators200", color: "from-violet-500 to-fuchsia-500", title: "PRO • Indicators & precise entries", deposit: 200,
+      audienceTitle: "Who it's for", audience: ["You know basics","You want rule‑based signals","Less subjectivity"],
+      outcomesTitle: "Outcomes", outcomes: ["Build indicator stacks","Filter noise & false signals","Increase winrate with confirmations"],
+      modulesTitle: "Modules",
+      modules: [
+        { name: "Moving Average (MA)", bullets: ["Why MA is core","MA + Patterns: filtering","Practice: find 3 patterns & 3 wins"] },
+        { name: "Williams %R + Accelerator", bullets: ["-80/-20 zones","Signal diversification","Trend/counter‑trend scenarios"] },
+        { name: "CCI + Momentum", bullets: ["Cycles & levels","Momentum 100 rule","Early reversal combo"] },
+      ],
+      button: "Unlock — deposit"
+    },
+    { id: "master300", color: "from-emerald-500 to-teal-500", title: "MASTER • System trading & risk management", deposit: 300,
+      audienceTitle: "Who it's for", audience: ["Adv. beginners / intermediate","Ready for daily plan & journal","Goal: consistency & scaling"],
+      outcomesTitle: "Outcomes", outcomes: ["Build a trading plan & checklist","Risk profile & limits","Templates & journal to automate"],
+      modulesTitle: "Modules",
+      modules: [
+        { name: "Entry System", bullets: ["Trend / counter‑trend / range","Timing & duration for M1","Signal: conditions → confirm → entry"] },
+        { name: "Risk & Money", bullets: ["Fixed risk per trade & daily cap","Anti‑martingale growth","Drawdown recovery plan"] },
+        { name: "Psychology", bullets: ["Avoid overtrading","Rules for breaks","Trader's journal template"] },
+      ],
+      button: "Unlock — deposit"
+    },
+  ],
+  programsIntro: "Each module = video, notes, checklist, and a short quiz. The next block unlocks after passing the quiz.",
+  bundle: {
+    title: "Best value — access to all courses",
+    text: "Unlock all 3 courses after a $500 deposit on Pocket Option. No extra payments for education.",
+    button: "Unlock all — deposit",
+    deposit: 500,
+    includes: "Includes: Basic ($100) • Indicators ($200) • Master ($300)",
+    media: {
+      mode: "image",             // 'image' | 'video'
+      image: "",                 // data URL or external
+      videoUrl: "",              // youtube/vimeo/mp4
+      captionTitle: "Student case: +$184 in 5 minutes",
+      captionSubtitle: "(replace with your video/testimonial)"
+    }
+  },
+  howTo: { title: "How to get access for free", steps: ["Sign up / log in to Pocket Option.","Top up your deposit — $100 / $200 / $300 or $500 for the bundle.","Send your account ID / receipt to Telegram support — we'll activate access."], note: "Important: we do not accept payments for courses; the deposit stays in your Pocket Option account.", pocketLink: "#", proofLink: "#" },
+  reviewsLink: { title: "Real reviews on Telegram", subtitle: "Open our reviews channel to see live feedback and results.", button: "Open reviews channel", url: TELEGRAM_REVIEWS_URL },
+  faq: [
+    { q: "Are courses paid?", a: "No. Courses are effectively free: access unlocks after your Pocket Option deposit for the selected level." },
+    { q: "Where does the deposit go?", a: "Only to your Pocket Option account. We do not take money for training." },
+    { q: "How to confirm the deposit?", a: "Send your account ID / receipt in Telegram — we'll activate access." },
+    { q: "Lifetime access?", a: "Yes. Lifetime access. Updates included." },
+    { q: "Where to start?", a: "Start with Basic ($100), then Indicators ($200) and Master ($300) — or go bundle with a $500 deposit." },
+  ],
+  cta: { title: "Ready to start? Unlock via deposit", text: "Top up your Pocket Option deposit and send your ID/receipt — we'll activate access. Questions? Message us on Telegram.", chosenLabel: "You selected:", btnPocket: "Go to Pocket Option", btnProof: "Send receipt/ID in Telegram", disclaimer: "We do not accept payments for training. The deposit & risks are on the Pocket Option side." },
+  footer: { about: "Trading education for Pocket Option: theory, practice, discipline.", docs: ["Public Offer","Refund Policy","Privacy Policy"] }
+};
+
 const usd = (n:number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
 export default function App(){
@@ -29,39 +85,33 @@ export default function App(){
   const [adminOpen, setAdminOpen] = useState(false);
   const ninePressRef = useRef(0);
   const nineTimerRef = useRef<any>(null);
-  useEffect(() => {
-    const saved = localStorage.getItem(KEY);
-    if (saved) {
-      try { setCfg(JSON.parse(saved)); return; } catch {}
-    }
-    (async () => {
-      try {
-        const res = await fetch('/config.json', { cache: 'no-store' });
-        if (res.ok) {
-          const json = await res.json();
-          const merged = deepMerge(defaults, json || {});
-          localStorage.setItem(KEY, JSON.stringify(merged));
-          setCfg(merged);
-          return;
-        }
-      } catch {}
-      localStorage.setItem(KEY, JSON.stringify(defaults));
-      setCfg(defaults);
-    })();
-  }, []);
+
   useEffect(()=>{
-    const onKey = (e:KeyboardEvent) => {
-      const isNine = e.key === '9' || e.code === 'Numpad9';
-      if(!isNine) return;
+    const saved = localStorage.getItem(KEY);
+    if (saved) { try { setCfg(JSON.parse(saved)); return; } catch {} }
+    (async ()=>{
+      try{
+        const r = await fetch("/config.json", { cache: "no-store" });
+        if(r.ok){ const j = await r.json(); const merged = deepMerge(defaults, j||{}); localStorage.setItem(KEY, JSON.stringify(merged)); setCfg(merged); return; }
+      }catch{}
+      localStorage.setItem(KEY, JSON.stringify(defaults)); setCfg(defaults);
+    })();
+  },[]);
+
+  useEffect(()=>{
+    const onKey = (e:KeyboardEvent)=>{
+      const isNine = e.key==='9' || e.code==='Numpad9'; if(!isNine) return;
       ninePressRef.current += 1;
       if(nineTimerRef.current) clearTimeout(nineTimerRef.current);
-      nineTimerRef.current = setTimeout(()=>{ ninePressRef.current = 0; }, 1500);
-      if(ninePressRef.current >= 7){ setAdminOpen(v=>!v); ninePressRef.current = 0; }
+      nineTimerRef.current = setTimeout(()=> ninePressRef.current = 0, 1500);
+      if(ninePressRef.current>=7){ setAdminOpen(v=>!v); ninePressRef.current = 0; }
     };
     window.addEventListener('keydown', onKey);
     return ()=> window.removeEventListener('keydown', onKey);
   },[]);
-  const onAccess = (id:string) => { document.getElementById('cta')?.scrollIntoView({behavior:'smooth'}); setSelected(id); };
+
+  const onAccess = (id:string) => { document.getElementById("cta")?.scrollIntoView({behavior:"smooth"}); setSelected(id); };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-925 to-slate-900 text-slate-100 selection:bg-cyan-400/30">
       <Header title={cfg.brand.title} />
@@ -73,7 +123,9 @@ export default function App(){
       <FAQ faq={cfg.faq} />
       <CTA cta={cfg.cta} howTo={cfg.howTo} selected={selected} />
       <Footer brand={cfg.brand} footer={cfg.footer} />
-      {adminOpen && (<AdminPanel cfg={cfg} onClose={()=>setAdminOpen(false)} onSave={(next)=>{ setCfg(next); localStorage.setItem(KEY, JSON.stringify(next)); }} />)}
+      {adminOpen && (
+        <AdminPanel cfg={cfg} onClose={()=>setAdminOpen(false)} onSave={(next)=>{ setCfg(next); localStorage.setItem(KEY, JSON.stringify(next)); }} />
+      )}
     </div>
   );
 }
@@ -97,6 +149,7 @@ function Header({title}:{title:string}){
     </header>
   );
 }
+
 function Hero({hero, features}:{hero:any; features:any[]}){
   return (
     <section className="relative overflow-hidden">
@@ -156,6 +209,7 @@ function Programs({courses, programsIntro, onAccess}:{courses:any[]; programsInt
     <section id="programs" className="mx-auto max-w-7xl px-4 py-16 md:py-24">
       <h2 className="text-3xl md:text-4xl font-black tracking-tight">Course programs</h2>
       <p className="mt-3 text-slate-300 max-w-3xl">{programsIntro}</p>
+
       <div className="mt-10 grid lg:grid-cols-3 gap-6">
         {courses.map((c) => (
           <div key={c.id} className="group rounded-2xl border border-white/10 bg-white/5 overflow-hidden transition-shadow hover:shadow-2xl">
@@ -208,6 +262,36 @@ function Programs({courses, programsIntro, onAccess}:{courses:any[]; programsInt
 }
 
 function Bundle({bundle, onAccess}:{bundle:any; onAccess:(id:string)=>void}){
+  const m = bundle.media || {};
+  const renderMedia = () => {
+    if (m.mode === "video" && m.videoUrl) {
+      const url = String(m.videoUrl);
+      const yt = parseYouTube(url);
+      const vm = parseVimeo(url);
+      if (yt) {
+        return <iframe className="w-full h-full" src={`https://www.youtube.com/embed/${yt}`} title="YouTube video" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />;
+      }
+      if (vm) {
+        return <iframe className="w-full h-full" src={`https://player.vimeo.com/video/${vm}`} title="Vimeo video" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen />;
+      }
+      if (url.endsWith(".mp4")) {
+        return <video className="w-full h-full" controls src={url}/>;
+      }
+      // fallback
+      return <div className="grid place-items-center text-sm text-slate-300 p-6">Unsupported video link</div>;
+    }
+    if (m.mode === "image" && m.image) {
+      return <img src={m.image} className="w-full h-full object-cover" alt="Student case" />;
+    }
+    // default placeholder
+    return (
+      <div className="text-center p-6">
+        <Play className="h-10 w-10 mx-auto mb-3 text-cyan-400" />
+        <div className="font-semibold">{m.captionTitle || "Student case: +$184 in 5 minutes"}</div>
+        <div className="text-xs text-slate-400">{m.captionSubtitle || "(replace with your video/testimonial)"}</div>
+      </div>
+    );
+  };
   return (
     <section id="pricing" className="mx-auto max-w-7xl px-4 pb-16 md:pb-24">
       <div className="grid lg:grid-cols-12 gap-6 items-stretch">
@@ -227,6 +311,21 @@ function Bundle({bundle, onAccess}:{bundle:any; onAccess:(id:string)=>void}){
             </div>
           </div>
         </div>
+
+        <div className="lg:col-span-5 space-y-6">
+          <div className="rounded-2xl overflow-hidden ring-1 ring-white/10">
+            <div className="aspect-video bg-slate-800 grid">
+              {renderMedia()}
+            </div>
+            {(m.captionTitle || m.captionSubtitle) && (
+              <div className="px-4 py-3 text-sm bg-white/5 border-t border-white/10">
+                <div className="font-medium">{m.captionTitle}</div>
+                <div className="text-slate-400">{m.captionSubtitle}</div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </section>
   );
 }
@@ -250,6 +349,7 @@ function HowTo({howTo}:{howTo:any}){
     </section>
   );
 }
+
 function ReviewsLink({reviewsLink}:{reviewsLink:any}){
   return (
     <section id="reviews" className="mx-auto max-w-7xl px-4 py-16">
@@ -261,6 +361,7 @@ function ReviewsLink({reviewsLink}:{reviewsLink:any}){
     </section>
   );
 }
+
 function FAQ({faq}:{faq:any[]}){
   return (
     <section id="faq" className="mx-auto max-w-7xl px-4 py-16">
@@ -279,6 +380,7 @@ function FAQ({faq}:{faq:any[]}){
     </section>
   );
 }
+
 function CTA({cta, howTo, selected}:{cta:any; howTo:any; selected:string|null}){
   return (
     <section id="cta" className="mx-auto max-w-7xl px-4 pb-24">
@@ -303,6 +405,7 @@ function CTA({cta, howTo, selected}:{cta:any; howTo:any; selected:string|null}){
     </section>
   );
 }
+
 function Footer({brand, footer}:{brand:any; footer:any}){
   return (
     <footer className="border-t border-white/10">
@@ -327,10 +430,12 @@ function Footer({brand, footer}:{brand:any; footer:any}){
   );
 }
 
-// Admin Panel
+// ================= ADMIN =================
 function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClose:()=>void}){
   const [draft, setDraft] = useState(JSON.parse(JSON.stringify(cfg)));
   const [uploadBusy, setUploadBusy] = useState(false);
+  const [uploadBusyCase, setUploadBusyCase] = useState(false);
+
   const exportJson = () => {
     const blob = new Blob([JSON.stringify(draft, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -341,6 +446,7 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
     reader.onload = () => { try { const obj = JSON.parse(String(reader.result)); setDraft(deepMerge(draft, obj)); } catch {} };
     reader.readAsText(file);
   };
+
   return (
     <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm grid place-items-center">
       <div className="w-[95vw] max-w-4xl max-h-[85vh] overflow-auto rounded-2xl bg-slate-900/95 ring-1 ring-white/10 shadow-2xl p-5 space-y-6">
@@ -356,6 +462,8 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
             <button onClick={onClose} className="px-3 py-2 rounded-lg bg-white/10">Close</button>
           </div>
         </div>
+
+        {/* BRAND */}
         <Fieldset title="Brand / Contacts">
           <Input value={draft.brand.title} onChange={v=> setDraft({...draft, brand:{...draft.brand, title:v}})} placeholder="Site title"/>
           <div className="grid md:grid-cols-2 gap-2">
@@ -363,6 +471,8 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
             <Input value={draft.brand.email} onChange={v=> setDraft({...draft, brand:{...draft.brand, email:v}})} placeholder="email"/>
           </div>
         </Fieldset>
+
+        {/* HERO */}
         <Fieldset title="Hero">
           <Input value={draft.hero.badge} onChange={v=> setDraft({...draft, hero:{...draft.hero, badge:v}})} placeholder="Badge"/>
           <Input value={draft.hero.title} onChange={v=> setDraft({...draft, hero:{...draft.hero, title:v}})} placeholder="Title"/>
@@ -382,6 +492,8 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
             {draft.hero.image && (<div className="mt-2 aspect-video rounded-lg overflow-hidden ring-1 ring-white/10"><img src={draft.hero.image} className="w-full h-full object-cover"/></div>)}
           </div>
         </Fieldset>
+
+        {/* FEATURES */}
         <Fieldset title="Features">
           {draft.features.map((f:any, i:number)=> (
             <div key={i} className="grid md:grid-cols-4 gap-2 items-center">
@@ -395,9 +507,13 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
             </div>
           ))}
         </Fieldset>
+
+        {/* PROGRAMS Intro */}
         <Fieldset title="Programs — intro text">
           <Textarea rows={2} value={draft.programsIntro} onChange={v=> setDraft({...draft, programsIntro:v})}/>
         </Fieldset>
+
+        {/* COURSES */}
         <Fieldset title="Courses">
           {draft.courses.map((c:any, i:number)=> (
             <div key={c.id} className="rounded-xl bg-white/5 ring-1 ring-white/10 p-4 space-y-3 mb-4">
@@ -425,7 +541,9 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
             </div>
           ))}
         </Fieldset>
-        <Fieldset title="Bundle">
+
+        {/* BUNDLE (with Student Case media) */}
+        <Fieldset title="Bundle & Student case">
           <Input value={draft.bundle.title} onChange={v=> setDraft({...draft, bundle:{...draft.bundle, title:v}})} />
           <Textarea rows={2} value={draft.bundle.text} onChange={v=> setDraft({...draft, bundle:{...draft.bundle, text:v}})} />
           <div className="grid md:grid-cols-3 gap-2">
@@ -433,7 +551,45 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
             <Input className="md:col-span-2" value={draft.bundle.includes} onChange={v=> setDraft({...draft, bundle:{...draft.bundle, includes:v}})} />
           </div>
           <Input value={draft.bundle.button} onChange={v=> setDraft({...draft, bundle:{...draft.bundle, button:v}})} />
+
+          <div className="mt-4 p-3 rounded-lg bg-white/5 ring-1 ring-white/10 space-y-2">
+            <div className="text-xs uppercase tracking-wide text-slate-400">Student case media</div>
+            <div className="grid md:grid-cols-3 gap-2 items-center">
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-slate-300">Mode</span>
+              </div>
+              <select className="bg-white/5 rounded-lg px-3 py-2 md:col-span-2" value={draft.bundle.media?.mode||'image'} onChange={(e)=> setDraft({...draft, bundle:{...draft.bundle, media:{...draft.bundle.media, mode:e.target.value}}})}>
+                <option value="image">Image</option>
+                <option value="video">Video</option>
+              </select>
+            </div>
+
+            {draft.bundle.media?.mode === 'image' ? (
+              <div>
+                <div className="text-xs text-slate-400 mb-1">Upload image (16:9 recommended). Stored as data URL.</div>
+                <input type="file" accept="image/*" className="block w-full text-sm" onChange={(e)=>{
+                  const f = e.target.files?.[0]; if(!f) return; setUploadBusyCase(true);
+                  const reader = new FileReader(); reader.onload = ()=>{ setDraft({...draft, bundle:{...draft.bundle, media:{...draft.bundle.media, image:String(reader.result)}}}); setUploadBusyCase(false); };
+                  reader.readAsDataURL(f);
+                }} />
+                {uploadBusyCase && <div className="text-xs text-slate-400 mt-1">Uploading…</div>}
+                {draft.bundle.media?.image && <div className="mt-2 aspect-video rounded-lg overflow-hidden ring-1 ring-white/10"><img src={draft.bundle.media.image} className="w-full h-full object-cover"/></div>}
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-3 gap-2 items-center">
+                <span className="text-sm text-slate-300">Video URL</span>
+                <Input className="md:col-span-2" value={draft.bundle.media?.videoUrl||''} onChange={(v)=> setDraft({...draft, bundle:{...draft.bundle, media:{...draft.bundle.media, videoUrl:v}}})} placeholder="YouTube/Vimeo/mp4 link"/>
+              </div>
+            )}
+
+            <div className="grid md:grid-cols-2 gap-2">
+              <Input value={draft.bundle.media?.captionTitle||''} onChange={(v)=> setDraft({...draft, bundle:{...draft.bundle, media:{...draft.bundle.media, captionTitle:v}}})} placeholder="Caption title"/>
+              <Input value={draft.bundle.media?.captionSubtitle||''} onChange={(v)=> setDraft({...draft, bundle:{...draft.bundle, media:{...draft.bundle.media, captionSubtitle:v}}})} placeholder="Caption subtitle"/>
+            </div>
+          </div>
         </Fieldset>
+
+        {/* HOW TO */}
         <Fieldset title="How to get access">
           <Input value={draft.howTo.title} onChange={v=> setDraft({...draft, howTo:{...draft.howTo, title:v}})} />
           <ArrayEditor label="Steps" items={draft.howTo.steps} onChange={(arr)=> setDraft({...draft, howTo:{...draft.howTo, steps:arr}})} />
@@ -443,6 +599,8 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
             <Input value={draft.howTo.proofLink} onChange={v=> setDraft({...draft, howTo:{...draft.howTo, proofLink:v}})} placeholder="Telegram proof link"/>
           </div>
         </Fieldset>
+
+        {/* REVIEWS LINK */}
         <Fieldset title="Reviews link">
           <Input value={draft.reviewsLink.title} onChange={v=> setDraft({...draft, reviewsLink:{...draft.reviewsLink, title:v}})} />
           <Textarea rows={2} value={draft.reviewsLink.subtitle} onChange={v=> setDraft({...draft, reviewsLink:{...draft.reviewsLink, subtitle:v}})} />
@@ -451,6 +609,8 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
             <Input value={draft.reviewsLink.url} onChange={v=> setDraft({...draft, reviewsLink:{...draft.reviewsLink, url:v}})} placeholder="Telegram link"/>
           </div>
         </Fieldset>
+
+        {/* FAQ */}
         <Fieldset title="FAQ">
           {draft.faq.map((f:any, i:number)=> (
             <div key={i} className="grid md:grid-cols-2 gap-2">
@@ -459,6 +619,8 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
             </div>
           ))}
         </Fieldset>
+
+        {/* CTA */}
         <Fieldset title="CTA">
           <Input value={draft.cta.title} onChange={v=> setDraft({...draft, cta:{...draft.cta, title:v}})} />
           <Textarea rows={2} value={draft.cta.text} onChange={v=> setDraft({...draft, cta:{...draft.cta, text:v}})} />
@@ -469,10 +631,17 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
           </div>
           <Input value={draft.cta.disclaimer} onChange={v=> setDraft({...draft, cta:{...draft.cta, disclaimer:v}})} placeholder="Disclaimer"/>
         </Fieldset>
+
+        {/* FOOTER */}
+        <Fieldset title="Footer">
+          <Textarea rows={2} value={draft.footer.about} onChange={v=> setDraft({...draft, footer:{...draft.footer, about:v}})} />
+          <ArrayEditor label="Documents" items={draft.footer.docs} onChange={(arr)=> setDraft({...draft, footer:{...draft.footer, docs:arr}})} />
+        </Fieldset>
       </div>
     </div>
   );
 }
+
 function Fieldset({title, children}:{title:string; children:any}){
   return (<fieldset className="space-y-2"><legend className="text-xs uppercase tracking-wide text-slate-400">{title}</legend>{children}</fieldset>);
 }
@@ -492,5 +661,16 @@ function updateArrField(draft:any, setDraft:any, key:string, idx:number, patch:a
 function updateCourseField(draft:any, setDraft:any, idx:number, patch:any){ const next = JSON.parse(JSON.stringify(draft)); next.courses[idx] = { ...next.courses[idx], ...patch }; setDraft(next); }
 function updateModuleField(draft:any, setDraft:any, courseIdx:number, modIdx:number, patch:any){ const next = JSON.parse(JSON.stringify(draft)); next.courses[courseIdx].modules[modIdx] = { ...next.courses[courseIdx].modules[modIdx], ...patch }; setDraft(next); }
 function updateFaq(draft:any, setDraft:any, idx:number, patch:any){ const next = JSON.parse(JSON.stringify(draft)); next.faq[idx] = { ...next.faq[idx], ...patch }; setDraft(next); }
+
 function iconByName(name:string){ if(name==='shield') return <Shield className="h-5 w-5"/>; if(name==='clock') return <Clock className="h-5 w-5"/>; if(name==='graduation') return <GraduationCap className="h-5 w-5"/>; if(name==='users') return <Users className="h-5 w-5"/>; return <Shield className="h-5 w-5"/>; }
+
 function deepMerge(a:any,b:any):any{ if(Array.isArray(a)&&Array.isArray(b)) return b; if(typeof a==='object'&&typeof b==='object'&&a&&b){ const out:any={...a}; for(const k of Object.keys(b)) out[k]=deepMerge(a[k],b[k]); return out;} return b??a; }
+
+function parseYouTube(url:string):string|null{
+  const m = url.match(/(?:youtu\.be\/|v=|embed\/)([A-Za-z0-9_-]{6,})/);
+  return m ? m[1] : null;
+}
+function parseVimeo(url:string):string|null{
+  const m = url.match(/vimeo\.com\/(?:video\/)?([0-9]+)/);
+  return m ? m[1] : null;
+}
