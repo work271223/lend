@@ -1,147 +1,54 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Check, Star, Clock, Shield, ChevronRight, Play, BookOpen, Sparkles, Gift, Users, GraduationCap, HelpCircle, Rocket, Settings, Save, Link as LinkIcon, Upload, Download } from "lucide-react";
 
-// ===============================
-// Landing (EN) • Access via Pocket Option deposit
-// Admin button is HIDDEN. Toggle by pressing '9' key 7x (supports Numpad9).
-// Reviews block removed — replaced with a CTA link to Telegram reviews channel.
-// Admin supports editing ALL texts, uploading HERO image, and Export/Import config JSON.
-// ===============================
-
+// Landing with persist fix: config.json loads only once if localStorage is empty
 const TELEGRAM_REVIEWS_URL = "https://t.me/+ClNCXSObpic0ZDli";
-
-// Default content
-const defaults = {
-  brand: { title: "Pro Binary — Academy", telegram: "@your_id", email: "info@yourdomain.com" },
-  hero: {
-    badge: "Access via Pocket Option deposit",
-    title: "Three trading courses — effectively free",
-    subtitle: "Unlock access after deposit: $100 / $200 / $300 or the full bundle with a $500 deposit. Video lessons, checklists, mini‑quizzes, and support.",
-    ctaPrimary: "How to get access",
-    ctaSecondary: "Course contents",
-    image: ""
-  },
-  features: [
-    { icon: "shield", text: "Structured program: beginner to pro" },
-    { icon: "clock", text: "Format: video + breakdowns + checklists" },
-    { icon: "graduation", text: "Mini‑exams and certificate" },
-    { icon: "users", text: "Support and trade reviews in chat" },
+const defaults:any = {
+  brand:{ title:"Pro Binary — Academy", telegram:"@your_id", email:"info@yourdomain.com" },
+  hero:{ badge:"Access via Pocket Option deposit", title:"Three trading courses — effectively free", subtitle:"Unlock access after deposit: $100 / $200 / $300 or the full bundle with a $500 deposit. Video lessons, checklists, mini‑quizzes, and support.", ctaPrimary:"How to get access", ctaSecondary:"Course contents", image:"" },
+  features:[{icon:"shield",text:"Structured program: beginner to pro"},{icon:"clock",text:"Format: video + breakdowns + checklists"},{icon:"graduation",text:"Mini‑exams and certificate"},{icon:"users",text:"Support and trade reviews in chat"}],
+  courses:[
+    {id:"basic100",color:"from-sky-500 to-cyan-400",title:"BASIC • Technical analysis from scratch",deposit:100,audienceTitle:"Who it's for",audience:["Absolute beginners","Trend logic: up/down/range","Drawing trendlines and levels"],outcomesTitle:"Outcomes",outcomes:["Spot reversals and continuations","Read candles on M1 with confidence","Assemble a simple price‑action system"],modulesTitle:"Modules",modules:[{name:"Trends & Lines",bullets:["Types of trends and price logic","Trendlines: drawing and invalidation","Entry signal on trendline break"]},{name:"Support / Resistance",bullets:["How to build levels and judge strength","Confirmations: touches & timeframe","Entry algorithm: approach → reaction → entry"]},{name:"Chart Patterns",bullets:["Head & Shoulders / Inverted H&S","Double Top/Bottom, Wedge, Triangle","Entry rules & targets (pattern height)"]}],button:"Unlock — deposit"},
+    {id:"indicators200",color:"from-violet-500 to-fuchsia-500",title:"PRO • Indicators & precise entries",deposit:200,audienceTitle:"Who it's for",audience:["You know basics","You want rule‑based signals","Less subjectivity"],outcomesTitle:"Outcomes",outcomes:["Build indicator stacks","Filter noise & false signals","Increase winrate with confirmations"],modulesTitle:"Modules",modules:[{name:"Moving Average (MA)",bullets:["Why MA is core","MA + Patterns: filtering","Practice: find 3 patterns & 3 wins"]},{name:"Williams %R + Accelerator",bullets:["-80/-20 zones","Signal diversification","Trend/counter‑trend scenarios"]},{name:"CCI + Momentum",bullets:["Cycles & levels","Momentum 100 rule","Early reversal combo"]}],button:"Unlock — deposit"},
+    {id:"master300",color:"from-emerald-500 to-teal-500",title:"MASTER • System trading & risk management",deposit:300,audienceTitle:"Who it's for",audience:["Adv. beginners / intermediate","Ready for daily plan & journal","Goal: consistency & scaling"],outcomesTitle:"Outcomes",outcomes:["Build a trading plan & checklist","Risk profile & limits","Templates & journal to automate"],modulesTitle:"Modules",modules:[{name:"Entry System",bullets:["Trend / counter‑trend / range","Timing & duration for M1","Signal: conditions → confirm → entry"]},{name:"Risk & Money",bullets:["Fixed risk per trade & daily cap","Anti‑martingale growth","Drawdown recovery plan"]},{name:"Psychology",bullets:["Avoid overtrading","Rules for breaks","Trader's journal template"]}],button:"Unlock — deposit"}
   ],
-  courses: [
-    { id: "basic100", color: "from-sky-500 to-cyan-400", title: "BASIC • Technical analysis from scratch", deposit: 100,
-      audienceTitle: "Who it's for",
-      audience: ["Absolute beginners","Trend logic: up/down/range","Drawing trendlines and levels"],
-      outcomesTitle: "Outcomes",
-      outcomes: ["Spot reversals and continuations","Read candles on M1 with confidence","Assemble a simple price‑action system"],
-      modulesTitle: "Modules",
-      modules: [
-        { name: "Trends & Lines", bullets: ["Types of trends and price logic","Trendlines: drawing and invalidation","Entry signal on trendline break"]},
-        { name: "Support / Resistance", bullets: ["How to build levels and judge strength","Confirmations: touches & timeframe","Entry algorithm: approach → reaction → entry"]},
-        { name: "Chart Patterns", bullets: ["Head & Shoulders / Inverted H&S","Double Top/Bottom, Wedge, Triangle","Entry rules & targets (pattern height)"]},
-      ],
-      button: "Unlock — deposit"
-    },
-    { id: "indicators200", color: "from-violet-500 to-fuchsia-500", title: "PRO • Indicators & precise entries", deposit: 200,
-      audienceTitle: "Who it's for",
-      audience: ["You know basics","You want rule‑based signals","Less subjectivity"],
-      outcomesTitle: "Outcomes",
-      outcomes: ["Build indicator stacks","Filter noise & false signals","Increase winrate with confirmations"],
-      modulesTitle: "Modules",
-      modules: [
-        { name: "Moving Average (MA)", bullets: ["Why MA is core","MA + Patterns: filtering","Practice: find 3 patterns & 3 wins"] },
-        { name: "Williams %R + Accelerator", bullets: ["-80/-20 zones","Signal diversification","Trend/counter‑trend scenarios"] },
-        { name: "CCI + Momentum", bullets: ["Cycles & levels","Momentum 100 rule","Early reversal combo"] },
-      ],
-      button: "Unlock — deposit"
-    },
-    { id: "master300", color: "from-emerald-500 to-teal-500", title: "MASTER • System trading & risk management", deposit: 300,
-      audienceTitle: "Who it's for",
-      audience: ["Adv. beginners / intermediate","Ready for daily plan & journal","Goal: consistency & scaling"],
-      outcomesTitle: "Outcomes",
-      outcomes: ["Build a trading plan & checklist","Risk profile & limits","Templates & journal to automate"],
-      modulesTitle: "Modules",
-      modules: [
-        { name: "Entry System", bullets: ["Trend / counter‑trend / range","Timing & duration for M1","Signal: conditions → confirm → entry"] },
-        { name: "Risk & Money", bullets: ["Fixed risk per trade & daily cap","Anti‑martingale growth","Drawdown recovery plan"] },
-        { name: "Psychology", bullets: ["Avoid overtrading","Rules for breaks","Trader's journal template"] },
-      ],
-      button: "Unlock — deposit"
-    },
-  ],
-  programsIntro: "Each module = video, notes, checklist, and a short quiz. The next block unlocks after passing the quiz.",
-  bundle: {
-    title: "Best value — access to all courses",
-    text: "Unlock all 3 courses after a $500 deposit on Pocket Option. No extra payments for education.",
-    button: "Unlock all — deposit",
-    deposit: 500,
-    includes: "Includes: Basic ($100) • Indicators ($200) • Master ($300)",
-  },
-  howTo: {
-    title: "How to get access for free",
-    steps: [
-      "Sign up / log in to Pocket Option.",
-      "Top up your deposit — $100 / $200 / $300 or $500 for the bundle.",
-      "Send your account ID / receipt to Telegram support — we'll activate access.",
-    ],
-    note: "Important: we do not accept payments for courses; the deposit stays in your Pocket Option account.",
-    pocketLink: "#",
-    proofLink: "#",
-  },
-  reviewsLink: {
-    title: "Real reviews on Telegram",
-    subtitle: "Open our reviews channel to see live feedback and results.",
-    button: "Open reviews channel",
-    url: TELEGRAM_REVIEWS_URL,
-  },
-  faq: [
-    { q: "Are courses paid?", a: "No. Courses are effectively free: access unlocks after your Pocket Option deposit for the selected level." },
-    { q: "Where does the deposit go?", a: "Only to your Pocket Option account. We do not take money for training." },
-    { q: "How to confirm the deposit?", a: "Send your account ID / receipt in Telegram — we'll activate access." },
-    { q: "Lifetime access?", a: "Yes. Lifetime access. Updates included." },
-    { q: "Where to start?", a: "Start with Basic ($100), then Indicators ($200) and Master ($300) — or go bundle with a $500 deposit." },
-  ],
-  cta: {
-    title: "Ready to start? Unlock via deposit",
-    text: "Top up your Pocket Option deposit and send your ID/receipt — we'll activate access. Questions? Message us on Telegram.",
-    chosenLabel: "You selected:",
-    btnPocket: "Go to Pocket Option",
-    btnProof: "Send receipt/ID in Telegram",
-    disclaimer: "We do not accept payments for training. The deposit & risks are on the Pocket Option side.",
-  },
-  footer: {
-    about: "Trading education for Pocket Option: theory, practice, discipline.",
-    docs: ["Public Offer", "Refund Policy", "Privacy Policy"],
-  },
+  programsIntro:"Each module = video, notes, checklist, and a short quiz. The next block unlocks after passing the quiz.",
+  bundle:{title:"Best value — access to all courses",text:"Unlock all 3 courses after a $500 deposit on Pocket Option. No extra payments for education.",button:"Unlock all — deposit",deposit:500,includes:"Includes: Basic ($100) • Indicators ($200) • Master ($300)"},
+  howTo:{title:"How to get access for free",steps:["Sign up / log in to Pocket Option.","Top up your deposit — $100 / $200 / $300 or $500 for the bundle.","Send your account ID / receipt to Telegram support — we'll activate access."],note:"Important: we do not accept payments for courses; the deposit stays in your Pocket Option account.",pocketLink:"#",proofLink:"#"},
+  reviewsLink:{title:"Real reviews on Telegram",subtitle:"Open our reviews channel to see live feedback and results.",button:"Open reviews channel",url:TELEGRAM_REVIEWS_URL},
+  faq:[{q:"Are courses paid?",a:"No. Courses are effectively free: access unlocks after your Pocket Option deposit for the selected level."},{q:"Where does the deposit go?",a:"Only to your Pocket Option account. We do not take money for training."},{q:"How to confirm the deposit?",a:"Send your account ID / receipt in Telegram — we'll activate access."},{q:"Lifetime access?",a:"Yes. Lifetime access. Updates included."},{q:"Where to start?",a:"Start with Basic ($100), then Indicators ($200) and Master ($300) — or go bundle with a $500 deposit."}],
+  cta:{title:"Ready to start? Unlock via deposit",text:"Top up your Pocket Option deposit and send your ID/receipt — we'll activate access. Questions? Message us on Telegram.",chosenLabel:"You selected:",btnPocket:"Go to Pocket Option",btnProof:"Send receipt/ID in Telegram",disclaimer:"We do not accept payments for training. The deposit & risks are on the Pocket Option side."},
+  footer:{about:"Trading education for Pocket Option: theory, practice, discipline.",docs:["Public Offer","Refund Policy","Privacy Policy"]}
 };
-
 const KEY = "pb_cfg_v3_en";
 const usd = (n:number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
 export default function App(){
-  const [cfg, setCfg] = useState<any>(() => {
-    try { return JSON.parse(localStorage.getItem(KEY) || "null") || defaults; } catch { return defaults; }
-  });
+  const [cfg, setCfg] = useState<any>(defaults);
   const [selected, setSelected] = useState<string | null>(null);
   const [adminOpen, setAdminOpen] = useState(false);
   const ninePressRef = useRef(0);
   const nineTimerRef = useRef<any>(null);
-
-  // On first load, try to fetch /config.json and merge into localStorage
   useEffect(() => {
+    const saved = localStorage.getItem(KEY);
+    if (saved) {
+      try { setCfg(JSON.parse(saved)); return; } catch {}
+    }
     (async () => {
       try {
-        const res = await fetch("/config.json", { cache: "no-store" });
+        const res = await fetch('/config.json', { cache: 'no-store' });
         if (res.ok) {
           const json = await res.json();
           const merged = deepMerge(defaults, json || {});
           localStorage.setItem(KEY, JSON.stringify(merged));
           setCfg(merged);
+          return;
         }
       } catch {}
+      localStorage.setItem(KEY, JSON.stringify(defaults));
+      setCfg(defaults);
     })();
   }, []);
-
-  // Secret admin toggle: press '9' 7 times (supports Numpad9)
   useEffect(()=>{
     const onKey = (e:KeyboardEvent) => {
       const isNine = e.key === '9' || e.code === 'Numpad9';
@@ -149,20 +56,12 @@ export default function App(){
       ninePressRef.current += 1;
       if(nineTimerRef.current) clearTimeout(nineTimerRef.current);
       nineTimerRef.current = setTimeout(()=>{ ninePressRef.current = 0; }, 1500);
-      if(ninePressRef.current >= 7){
-        setAdminOpen(v => !v);
-        ninePressRef.current = 0;
-      }
+      if(ninePressRef.current >= 7){ setAdminOpen(v=>!v); ninePressRef.current = 0; }
     };
     window.addEventListener('keydown', onKey);
     return ()=> window.removeEventListener('keydown', onKey);
   },[]);
-
-  const onAccess = (id:string) => {
-    document.getElementById("cta")?.scrollIntoView({ behavior: "smooth" });
-    setSelected(id);
-  };
-
+  const onAccess = (id:string) => { document.getElementById('cta')?.scrollIntoView({behavior:'smooth'}); setSelected(id); };
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-925 to-slate-900 text-slate-100 selection:bg-cyan-400/30">
       <Header title={cfg.brand.title} />
@@ -174,9 +73,7 @@ export default function App(){
       <FAQ faq={cfg.faq} />
       <CTA cta={cfg.cta} howTo={cfg.howTo} selected={selected} />
       <Footer brand={cfg.brand} footer={cfg.footer} />
-      {adminOpen && (
-        <AdminPanel cfg={cfg} onClose={()=>setAdminOpen(false)} onSave={(next)=>{ setCfg(next); localStorage.setItem(KEY, JSON.stringify(next)); }} />
-      )}
+      {adminOpen && (<AdminPanel cfg={cfg} onClose={()=>setAdminOpen(false)} onSave={(next)=>{ setCfg(next); localStorage.setItem(KEY, JSON.stringify(next)); }} />)}
     </div>
   );
 }
@@ -200,7 +97,6 @@ function Header({title}:{title:string}){
     </header>
   );
 }
-
 function Hero({hero, features}:{hero:any; features:any[]}){
   return (
     <section className="relative overflow-hidden">
@@ -260,10 +156,9 @@ function Programs({courses, programsIntro, onAccess}:{courses:any[]; programsInt
     <section id="programs" className="mx-auto max-w-7xl px-4 py-16 md:py-24">
       <h2 className="text-3xl md:text-4xl font-black tracking-tight">Course programs</h2>
       <p className="mt-3 text-slate-300 max-w-3xl">{programsIntro}</p>
-
       <div className="mt-10 grid lg:grid-cols-3 gap-6">
         {courses.map((c) => (
-          <div key={c.id} className={`group rounded-2xl border border-white/10 bg-white/5 overflow-hidden transition-shadow hover:shadow-2xl`}>
+          <div key={c.id} className="group rounded-2xl border border-white/10 bg-white/5 overflow-hidden transition-shadow hover:shadow-2xl">
             <div className={`bg-gradient-to-r ${c.color} p-6`}>
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-xl bg-white/15"><BookOpen className="h-6 w-6" /></div>
@@ -332,7 +227,6 @@ function Bundle({bundle, onAccess}:{bundle:any; onAccess:(id:string)=>void}){
             </div>
           </div>
         </div>
-
         <div className="lg:col-span-5 space-y-6">
           <div className="rounded-2xl overflow-hidden ring-1 ring-white/10">
             <div className="aspect-video bg-slate-800 grid place-items-center">
@@ -368,7 +262,6 @@ function HowTo({howTo}:{howTo:any}){
     </section>
   );
 }
-
 function ReviewsLink({reviewsLink}:{reviewsLink:any}){
   return (
     <section id="reviews" className="mx-auto max-w-7xl px-4 py-16">
@@ -380,7 +273,6 @@ function ReviewsLink({reviewsLink}:{reviewsLink:any}){
     </section>
   );
 }
-
 function FAQ({faq}:{faq:any[]}){
   return (
     <section id="faq" className="mx-auto max-w-7xl px-4 py-16">
@@ -399,7 +291,6 @@ function FAQ({faq}:{faq:any[]}){
     </section>
   );
 }
-
 function CTA({cta, howTo, selected}:{cta:any; howTo:any; selected:string|null}){
   return (
     <section id="cta" className="mx-auto max-w-7xl px-4 pb-24">
@@ -424,7 +315,6 @@ function CTA({cta, howTo, selected}:{cta:any; howTo:any; selected:string|null}){
     </section>
   );
 }
-
 function Footer({brand, footer}:{brand:any; footer:any}){
   return (
     <footer className="border-t border-white/10">
@@ -449,34 +339,20 @@ function Footer({brand, footer}:{brand:any; footer:any}){
   );
 }
 
-// ================= ADMIN (hidden trigger: press '9' 7x) =================
+// Admin Panel
 function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClose:()=>void}){
   const [draft, setDraft] = useState(JSON.parse(JSON.stringify(cfg)));
   const [uploadBusy, setUploadBusy] = useState(false);
-
-  // Export current draft to a JSON file
   const exportJson = () => {
     const blob = new Blob([JSON.stringify(draft, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "config.json";
-    a.click();
-    URL.revokeObjectURL(url);
+    const a = document.createElement("a"); a.href = url; a.download = "config.json"; a.click(); URL.revokeObjectURL(url);
   };
-
-  // Import JSON file
   const importJson = (file: File) => {
     const reader = new FileReader();
-    reader.onload = () => {
-      try {
-        const obj = JSON.parse(String(reader.result));
-        setDraft(deepMerge(draft, obj));
-      } catch {}
-    };
+    reader.onload = () => { try { const obj = JSON.parse(String(reader.result)); setDraft(deepMerge(draft, obj)); } catch {} };
     reader.readAsText(file);
   };
-
   return (
     <div className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm grid place-items-center">
       <div className="w-[95vw] max-w-4xl max-h-[85vh] overflow-auto rounded-2xl bg-slate-900/95 ring-1 ring-white/10 shadow-2xl p-5 space-y-6">
@@ -492,8 +368,6 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
             <button onClick={onClose} className="px-3 py-2 rounded-lg bg-white/10">Close</button>
           </div>
         </div>
-
-        {/* BRAND */}
         <Fieldset title="Brand / Contacts">
           <Input value={draft.brand.title} onChange={v=> setDraft({...draft, brand:{...draft.brand, title:v}})} placeholder="Site title"/>
           <div className="grid md:grid-cols-2 gap-2">
@@ -501,8 +375,6 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
             <Input value={draft.brand.email} onChange={v=> setDraft({...draft, brand:{...draft.brand, email:v}})} placeholder="email"/>
           </div>
         </Fieldset>
-
-        {/* HERO */}
         <Fieldset title="Hero">
           <Input value={draft.hero.badge} onChange={v=> setDraft({...draft, hero:{...draft.hero, badge:v}})} placeholder="Badge"/>
           <Input value={draft.hero.title} onChange={v=> setDraft({...draft, hero:{...draft.hero, title:v}})} placeholder="Title"/>
@@ -514,22 +386,14 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
           <div className="mt-2">
             <div className="text-xs text-slate-400 mb-1">Hero image (recommended 16:9). Stored as data URL.</div>
             <input type="file" accept="image/*" className="block w-full text-sm" onChange={async (e)=>{
-              const f = e.target.files?.[0];
-              if(!f) return; setUploadBusy(true);
-              const reader = new FileReader();
-              reader.onload = () => { setDraft({...draft, hero:{...draft.hero, image: String(reader.result)}}); setUploadBusy(false); };
+              const f = e.target.files?.[0]; if(!f) return; setUploadBusy(true);
+              const reader = new FileReader(); reader.onload = () => { setDraft({...draft, hero:{...draft.hero, image: String(reader.result)}}); setUploadBusy(false); };
               reader.readAsDataURL(f);
             }} />
             {uploadBusy && <div className="text-xs text-slate-400 mt-1">Uploading…</div>}
-            {draft.hero.image && (
-              <div className="mt-2 aspect-video rounded-lg overflow-hidden ring-1 ring-white/10">
-                <img src={draft.hero.image} className="w-full h-full object-cover"/>
-              </div>
-            )}
+            {draft.hero.image && (<div className="mt-2 aspect-video rounded-lg overflow-hidden ring-1 ring-white/10"><img src={draft.hero.image} className="w-full h-full object-cover"/></div>)}
           </div>
         </Fieldset>
-
-        {/* FEATURES */}
         <Fieldset title="Features">
           {draft.features.map((f:any, i:number)=> (
             <div key={i} className="grid md:grid-cols-4 gap-2 items-center">
@@ -543,13 +407,9 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
             </div>
           ))}
         </Fieldset>
-
-        {/* PROGRAMS Intro */}
         <Fieldset title="Programs — intro text">
           <Textarea rows={2} value={draft.programsIntro} onChange={v=> setDraft({...draft, programsIntro:v})}/>
         </Fieldset>
-
-        {/* COURSES */}
         <Fieldset title="Courses">
           {draft.courses.map((c:any, i:number)=> (
             <div key={c.id} className="rounded-xl bg-white/5 ring-1 ring-white/10 p-4 space-y-3 mb-4">
@@ -577,8 +437,6 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
             </div>
           ))}
         </Fieldset>
-
-        {/* BUNDLE */}
         <Fieldset title="Bundle">
           <Input value={draft.bundle.title} onChange={v=> setDraft({...draft, bundle:{...draft.bundle, title:v}})} />
           <Textarea rows={2} value={draft.bundle.text} onChange={v=> setDraft({...draft, bundle:{...draft.bundle, text:v}})} />
@@ -588,8 +446,6 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
           </div>
           <Input value={draft.bundle.button} onChange={v=> setDraft({...draft, bundle:{...draft.bundle, button:v}})} />
         </Fieldset>
-
-        {/* HOW TO */}
         <Fieldset title="How to get access">
           <Input value={draft.howTo.title} onChange={v=> setDraft({...draft, howTo:{...draft.howTo, title:v}})} />
           <ArrayEditor label="Steps" items={draft.howTo.steps} onChange={(arr)=> setDraft({...draft, howTo:{...draft.howTo, steps:arr}})} />
@@ -599,8 +455,6 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
             <Input value={draft.howTo.proofLink} onChange={v=> setDraft({...draft, howTo:{...draft.howTo, proofLink:v}})} placeholder="Telegram proof link"/>
           </div>
         </Fieldset>
-
-        {/* REVIEWS LINK */}
         <Fieldset title="Reviews link">
           <Input value={draft.reviewsLink.title} onChange={v=> setDraft({...draft, reviewsLink:{...draft.reviewsLink, title:v}})} />
           <Textarea rows={2} value={draft.reviewsLink.subtitle} onChange={v=> setDraft({...draft, reviewsLink:{...draft.reviewsLink, subtitle:v}})} />
@@ -609,8 +463,6 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
             <Input value={draft.reviewsLink.url} onChange={v=> setDraft({...draft, reviewsLink:{...draft.reviewsLink, url:v}})} placeholder="Telegram link"/>
           </div>
         </Fieldset>
-
-        {/* FAQ */}
         <Fieldset title="FAQ">
           {draft.faq.map((f:any, i:number)=> (
             <div key={i} className="grid md:grid-cols-2 gap-2">
@@ -619,8 +471,6 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
             </div>
           ))}
         </Fieldset>
-
-        {/* CTA */}
         <Fieldset title="CTA">
           <Input value={draft.cta.title} onChange={v=> setDraft({...draft, cta:{...draft.cta, title:v}})} />
           <Textarea rows={2} value={draft.cta.text} onChange={v=> setDraft({...draft, cta:{...draft.cta, text:v}})} />
@@ -635,14 +485,8 @@ function AdminPanel({cfg, onSave, onClose}:{cfg:any; onSave:(c:any)=>void; onClo
     </div>
   );
 }
-
 function Fieldset({title, children}:{title:string; children:any}){
-  return (
-    <fieldset className="space-y-2">
-      <legend className="text-xs uppercase tracking-wide text-slate-400">{title}</legend>
-      {children}
-    </fieldset>
-  );
+  return (<fieldset className="space-y-2"><legend className="text-xs uppercase tracking-wide text-slate-400">{title}</legend>{children}</fieldset>);
 }
 function Input({value, onChange, placeholder, type="text", className=""}:{value:any; onChange:(v:string)=>void; placeholder?:string; type?:string; className?:string}){
   return <input type={type} className={`w-full bg-white/5 rounded-lg px-3 py-2 ${className}`} value={value} onChange={(e)=> onChange(e.target.value)} placeholder={placeholder}/>;
@@ -650,64 +494,15 @@ function Input({value, onChange, placeholder, type="text", className=""}:{value:
 function Textarea({value, onChange, rows=3, placeholder}:{value:any; onChange:(v:string)=>void; rows?:number; placeholder?:string}){
   return <textarea rows={rows} className="w-full bg-white/5 rounded-lg px-3 py-2" value={value} onChange={(e)=> onChange(e.target.value)} placeholder={placeholder}/>;
 }
-
 function ArrayEditor({label, items, onChange}:{label:string; items:string[]; onChange:(arr:string[])=>void}){
-  const [val, setVal] = useState("");
-  return (
-    <div>
-      <div className="text-xs text-slate-400 mb-1">{label}</div>
-      <div className="flex gap-2">
-        <input className="flex-1 bg-white/5 rounded-lg px-3 py-2" value={val} onChange={e=> setVal(e.target.value)} placeholder="Add item"/>
-        <button onClick={()=>{ if(val.trim()){ onChange([...(items||[]), val.trim()]); setVal(""); }}} className="px-3 py-2 rounded-lg bg-white/10">Add</button>
-      </div>
-      <ul className="mt-2 space-y-1 text-sm">
-        {(items||[]).map((e,i)=> (
-          <li key={i} className="flex items-center justify-between bg-white/5 rounded-lg px-3 py-2">
-            <span className="text-slate-300">{e}</span>
-            <button onClick={()=> onChange(items.filter((_,k)=>k!==i))} className="text-slate-400 hover:text-white">Remove</button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+  const [val, setVal] = useState(""); return (<div><div className="text-xs text-slate-400 mb-1">{label}</div>
+  <div className="flex gap-2"><input className="flex-1 bg-white/5 rounded-lg px-3 py-2" value={val} onChange={e=> setVal(e.target.value)} placeholder="Add item"/>
+  <button onClick={()=>{ if(val.trim()){ onChange([...(items||[]), val.trim()]); setVal(""); }}} className="px-3 py-2 rounded-lg bg-white/10">Add</button></div>
+  <ul className="mt-2 space-y-1 text-sm">{(items||[]).map((e,i)=>(<li key={i} className="flex items-center justify-between bg-white/5 rounded-lg px-3 py-2"><span className="text-slate-300">{e}</span><button onClick={()=> onChange(items.filter((_,k)=>k!==i))} className="text-slate-400 hover:text-white">Remove</button></li>))}</ul></div>);
 }
-
-function updateArrField(draft:any, setDraft:any, key:string, idx:number, patch:any){
-  const next = JSON.parse(JSON.stringify(draft));
-  next[key][idx] = { ...next[key][idx], ...patch };
-  setDraft(next);
-}
-function updateCourseField(draft:any, setDraft:any, idx:number, patch:any){
-  const next = JSON.parse(JSON.stringify(draft));
-  next.courses[idx] = { ...next.courses[idx], ...patch };
-  setDraft(next);
-}
-function updateModuleField(draft:any, setDraft:any, courseIdx:number, modIdx:number, patch:any){
-  const next = JSON.parse(JSON.stringify(draft));
-  next.courses[courseIdx].modules[modIdx] = { ...next.courses[courseIdx].modules[modIdx], ...patch };
-  setDraft(next);
-}
-function updateFaq(draft:any, setDraft:any, idx:number, patch:any){
-  const next = JSON.parse(JSON.stringify(draft));
-  next.faq[idx] = { ...next.faq[idx], ...patch };
-  setDraft(next);
-}
-
-function iconByName(name:string){
-  if(name === 'shield') return <Shield className="h-5 w-5"/>;
-  if(name === 'clock') return <Clock className="h-5 w-5"/>;
-  if(name === 'graduation') return <GraduationCap className="h-5 w-5"/>;
-  if(name === 'users') return <Users className="h-5 w-5"/>;
-  return <Shield className="h-5 w-5"/>;
-}
-
-// deepMerge utility to merge config JSONs
-function deepMerge(a:any, b:any): any {
-  if (Array.isArray(a) && Array.isArray(b)) return b; // replace arrays
-  if (typeof a === "object" && typeof b === "object" && a && b) {
-    const out:any = { ...a };
-    for (const k of Object.keys(b)) out[k] = deepMerge(a[k], b[k]);
-    return out;
-  }
-  return b ?? a;
-}
+function updateArrField(draft:any, setDraft:any, key:string, idx:number, patch:any){ const next = JSON.parse(JSON.stringify(draft)); next[key][idx] = { ...next[key][idx], ...patch }; setDraft(next); }
+function updateCourseField(draft:any, setDraft:any, idx:number, patch:any){ const next = JSON.parse(JSON.stringify(draft)); next.courses[idx] = { ...next.courses[idx], ...patch }; setDraft(next); }
+function updateModuleField(draft:any, setDraft:any, courseIdx:number, modIdx:number, patch:any){ const next = JSON.parse(JSON.stringify(draft)); next.courses[courseIdx].modules[modIdx] = { ...next.courses[courseIdx].modules[modIdx], ...patch }; setDraft(next); }
+function updateFaq(draft:any, setDraft:any, idx:number, patch:any){ const next = JSON.parse(JSON.stringify(draft)); next.faq[idx] = { ...next.faq[idx], ...patch }; setDraft(next); }
+function iconByName(name:string){ if(name==='shield') return <Shield className="h-5 w-5"/>; if(name==='clock') return <Clock className="h-5 w-5"/>; if(name==='graduation') return <GraduationCap className="h-5 w-5"/>; if(name==='users') return <Users className="h-5 w-5"/>; return <Shield className="h-5 w-5"/>; }
+function deepMerge(a:any,b:any):any{ if(Array.isArray(a)&&Array.isArray(b)) return b; if(typeof a==='object'&&typeof b==='object'&&a&&b){ const out:any={...a}; for(const k of Object.keys(b)) out[k]=deepMerge(a[k],b[k]); return out;} return b??a; }
